@@ -53,55 +53,43 @@
         .btn-secondary { background: #64748b; color: white; }
         .btn-add-chantier { background: #e2e8f0; color: #334155; font-size: 0.75rem; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600; cursor: pointer; margin-bottom: 6px; }
 
-        /* OPTIMISATION IMPRESSION EN 1 SEULE PAGE RECTO A4 */
+        /* IMPRESSION COMPACTE EN 1 PAGE */
         @media print {
             @page { 
                 size: A4 portrait; 
-                margin: 4mm; 
+                margin: 5mm; 
             }
             html, body {
-                height: 100%;
                 background: white !important;
                 padding: 0 !important;
                 margin: 0 !important;
                 max-width: 100% !important;
-                font-size: 7.5pt !important;
+                font-size: 8pt !important;
             }
-            .actions, .btn-remove, .btn-secondary, .btn-add-chantier, .break-notice, .week-picker-container label { 
+            .header, .day-total-box, .actions, .btn-remove, .btn-secondary, .btn-add-chantier, .break-notice, .week-picker-container label { 
                 display: none !important; 
             }
-            .header { 
-                padding: 4px; 
-                margin-bottom: 4px; 
-                border: 1px solid #64748b; 
-                border-radius: 4px;
-            }
-            .header h1 { font-size: 11pt; margin: 0; }
-            .header p { font-size: 7pt; margin: 0; }
 
             .week-picker-container { 
-                border: none; 
-                padding: 0; 
-                margin-bottom: 4px; 
-                justify-content: flex-start; 
+                border: none !important; 
+                padding: 0 !important; 
+                margin-bottom: 6px !important; 
+                justify-content: flex-start !important; 
             }
             .week-picker-container input { 
-                border: none; 
-                font-size: 9pt; 
-                font-weight: bold; 
-                padding: 0; 
+                border: none !important; 
+                font-size: 11pt !important; 
+                font-weight: bold !important; 
+                padding: 0 !important; 
             }
 
-            /* Affichage des journées sous forme de grille 2 colonnes pour gagner de la hauteur */
             #days-container {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                gap: 4px !important;
+                display: block !important;
             }
 
             .card { 
-                padding: 4px !important; 
-                margin-bottom: 0 !important; 
+                padding: 4px 6px !important; 
+                margin-bottom: 4px !important; 
                 border: 1px solid #64748b !important; 
                 border-radius: 4px !important;
                 page-break-inside: avoid !important; 
@@ -113,41 +101,47 @@
                 padding-bottom: 2px !important; 
             }
             .chantier-block { 
-                padding: 3px !important; 
-                margin-bottom: 3px !important; 
+                padding: 3px 5px !important; 
+                margin-bottom: 2px !important; 
                 border: 1px solid #cbd5e1 !important; 
+                background: #fff !important;
             }
             .chantier-title {
                 font-size: 6.5pt !important;
                 margin-bottom: 1px !important;
             }
+            .row {
+                margin-bottom: 2px !important;
+                gap: 4px !important;
+            }
             label { 
                 font-size: 6.5pt !important; 
-                margin-bottom: 1px !important; 
+                margin-bottom: 0px !important; 
             }
             input[type="time"], input[type="date"], input[type="text"], textarea { 
                 padding: 1px 3px !important; 
                 font-size: 7.5pt !important; 
                 border: 1px solid #cbd5e1 !important; 
                 border-radius: 2px !important;
+                height: 18px !important;
             }
             textarea { 
-                min-height: 18px !important; 
-                height: 20px !important;
+                min-height: 16px !important; 
+                height: 18px !important;
             }
+
             .summary-box { 
-                grid-column: span 2 !important;
                 background: white !important; 
                 color: black !important; 
                 border: 1px solid #000 !important; 
-                padding: 4px 8px !important; 
-                margin-top: 4px !important; 
+                padding: 6px !important; 
+                margin-top: 6px !important; 
                 page-break-inside: avoid !important; 
                 break-inside: avoid !important;
                 border-radius: 4px !important;
             }
             .summary-row { 
-                font-size: 7.5pt !important; 
+                font-size: 8pt !important; 
                 margin-bottom: 1px !important; 
             }
             .summary-total { 
@@ -155,7 +149,7 @@
                 color: black !important; 
                 padding-top: 2px !important; 
                 margin-top: 2px !important; 
-                font-size: 8.5pt !important; 
+                font-size: 9pt !important; 
             }
         }
     </style>
@@ -177,12 +171,12 @@
     <button class="btn btn-secondary" style="width:100%; margin-bottom:8px;" onclick="addExtraDay()">+ Ajouter un jour (Samedi / Dimanche)</button>
 
     <div class="summary-box">
-        <div class="summary-row"><span>Total heures travaillées :</span><span id="stat-total-h">0h00</span></div>
-        <div class="summary-row"><span>Heures normales (base 8h/j) :</span><span id="stat-normales">0h00</span></div>
-        <div class="summary-row"><span>Heures sup (+25%) :</span><span id="stat-25">0h00</span></div>
-        <div class="summary-row"><span>Heures sup (+50%) :</span><span id="stat-50">0h00</span></div>
-        <div class="summary-row"><span>Heures de nuit / Dimanche (+100%) :</span><span id="stat-100">0h00</span></div>
-        <div class="summary-row summary-total"><span>Repos Compensateur acquis :</span><span id="stat-repos">0h00</span></div>
+        <div class="summary-row summary-total" id="row-total"><span>Total heures travaillées :</span><span id="stat-total-h">0h00</span></div>
+        <div class="summary-row" id="row-normales"><span>Heures normales (base 8h/j) :</span><span id="stat-normales">0h00</span></div>
+        <div class="summary-row" id="row-25"><span>Heures sup (+25%) :</span><span id="stat-25">0h00</span></div>
+        <div class="summary-row" id="row-50"><span>Heures sup (+50%) :</span><span id="stat-50">0h00</span></div>
+        <div class="summary-row" id="row-100"><span>Heures de nuit / Dimanche (+100%) :</span><span id="stat-100">0h00</span></div>
+        <div class="summary-row" id="row-repos"><span>Repos Compensateur acquis :</span><span id="stat-repos">0h00</span></div>
     </div>
 
     <div class="actions">
@@ -294,7 +288,7 @@
                     ℹ️ Pause repas automatique déduite : 12h00 - 13h00 (non payée)
                 </div>
 
-                <div class="row" style="margin-top: 4px;">
+                <div class="row day-total-box">
                     <span style="font-size:0.8rem; font-weight:600;">Total heures payées du jour : <strong class="day-total" style="color:var(--primary)">0h00</strong></span>
                 </div>
             `;
@@ -435,6 +429,20 @@
             document.getElementById('stat-50').innerText = formatMinutes(h50Minutes);
             document.getElementById('stat-100').innerText = formatMinutes(h100Minutes);
             document.getElementById('stat-repos').innerText = formatMinutes(reposMinutes);
+
+            // Masque toutes les lignes à 0h00
+            toggleRow('row-normales', normalMinutes > 0 && totalSupMinutes > 0);
+            toggleRow('row-25', h25Minutes > 0);
+            toggleRow('row-50', h50Minutes > 0);
+            toggleRow('row-100', h100Minutes > 0);
+            toggleRow('row-repos', reposMinutes > 0);
+        }
+
+        function toggleRow(elementId, condition) {
+            const el = document.getElementById(elementId);
+            if (el) {
+                el.style.display = condition ? 'flex' : 'none';
+            }
         }
 
         function formatMinutes(mins) {
