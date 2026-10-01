@@ -108,13 +108,16 @@
     <script>
         let dayCount = 0;
 
+        // Fonction pour formater une date ISO en nom de jour français
         function getDayName(dateString) {
             if (!dateString) return "Journée";
+            // On sépare la date pour éviter les problèmes de fuseau horaire
             const parts = dateString.split('-');
             const date = new Date(parts[0], parts[1] - 1, parts[2]);
             return date.toLocaleDateString('fr-FR', { weekday: 'long' });
         }
 
+        // Met à jour le titre de la carte (ex: Lundi) quand la date change
         function updateDayTitle(dayId) {
             const card = document.getElementById(`day-${dayId}`);
             if (!card) return;
@@ -124,36 +127,54 @@
             calculateAll();
         }
 
-        function getMondayFromWeek(year, week) {
-            const simple = new Date(year, 0, 4);
-            const dayOfWeek = simple.getDay() || 7;
-            simple.setDate(simple.getDate() - dayOfWeek + 1);
-            simple.setDate(simple.getDate() + (week - 1) * 7);
-            return simple;
+        // Calcul correct du Lundi d'une semaine ISO
+        function getMondayOfWeekISO(year, week) {
+            // Premier jour de l'année
+            const simple = new Date(year, 0, 1 + (week - 1) * 7);
+            const dow = simple.getDay(); // 0=Dimanche, 1=Lundi, ..., 6=Samedi
+            
+            // On calcule le décalage pour tomber sur le lundi
+            let daysToMonday;
+            if (dow === 0) { // C'est un dimanche
+                daysToMonday = 1;
+            } else if (dow <= 4) { // Lundi à Jeudi
+                daysToMonday = 1 - dow;
+            } else { // Vendredi ou Samedi
+                daysToMonday = 8 - dow;
+            }
+            
+            // Applique le décalage
+            const ISOWeekStart = new Date(simple);
+            ISOWeekStart.setDate(simple.getDate() + daysToMonday);
+            
+            return ISOWeekStart;
         }
 
-        function getWeekNumber(d) {
+        // Numéro de la semaine pour une date donnée
+        function getWeekNumberISO(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
             const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
             return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
+        // Initialise le sélecteur de semaine sur la semaine en cours
         function setCurrentWeekPicker() {
             const today = new Date();
             const year = today.getFullYear();
-            const week = getWeekNumber(today);
+            const week = getWeekNumberISO(today);
             const formattedWeek = `${year}-W${week < 10 ? '0' + week : week}`;
             document.getElementById('week-select').value = formattedWeek;
             loadSelectedWeek();
         }
 
+        // Charge les 5 jours (Lundi-Vendredi) de la semaine sélectionnée
         function loadSelectedWeek() {
             const weekVal = document.getElementById('week-select').value;
             if (!weekVal) return;
 
             const [year, week] = weekVal.split('-W').map(Number);
-            const monday = getMondayFromWeek(year, week);
+            const monday = getMondayOfWeekISO(year, week);
 
             document.getElementById('days-container').innerHTML = '';
             dayCount = 0;
@@ -163,6 +184,7 @@
                 const currentDay = new Date(monday);
                 currentDay.setDate(monday.getDate() + i);
                 
+                // Formatage manuel pour input date (yyyy-mm-dd)
                 const yyyy = currentDay.getFullYear();
                 const mm = String(currentDay.getMonth() + 1).padStart(2, '0');
                 const dd = String(currentDay.getDate()).padStart(2, '0');
@@ -172,6 +194,7 @@
             }
         }
 
+        // Ajoute un jour (carte) avec une date préremplie
         function addDayWithDate(dateStr, isDefaultWeek = false) {
             dayCount++;
             const container = document.getElementById('days-container');
@@ -209,6 +232,7 @@
             addChantier(dayCount, "08:00", "17:00");
         }
 
+        // Ajoute un jour de week-end (samedi/dimanche)
         function addExtraDay() {
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -218,6 +242,7 @@
             addDayWithDate(dateStr, false);
         }
 
+        // Ajoute une ligne de chantier dans un jour
         function addChantier(dayId, defaultStart = "08:00", defaultEnd = "17:00") {
             const chantiersContainer = document.getElementById(`chantiers-day-${dayId}`);
             if (!chantiersContainer) return;
@@ -263,24 +288,28 @@
             calculateAll();
         }
 
+        // Supprime une ligne de chantier
         function removeChantier(chantierId) {
             const block = document.getElementById(`chantier-${chantierId}`);
             if (block) block.remove();
             calculateAll();
         }
 
+        // Supprime une carte de jour
         function removeDay(id) {
             const card = document.getElementById(`day-${id}`);
             if (card) card.remove();
             calculateAll();
         }
 
+        // Convertit HH:MM en minutes
         function parseTime(timeStr) {
             if (!timeStr) return 0;
             const [h, m] = timeStr.split(':').map(Number);
             return h * 60 + m;
         }
 
+        // Recalcule tous les totaux
         function calculateAll() {
             let totalMinutes = 0;
             let normalMinutes = 0;
@@ -301,6 +330,7 @@
                     if (end > start) {
                         let worked = end - start;
 
+                        // Pause repas 12h00 - 13h00 (720 min à 780 min)
                         const breakStart = 720; // 12h00
                         const breakEnd = 780;   // 13h00
 
@@ -316,6 +346,7 @@
                     }
                 });
 
+                // Ventilation par journée (Base 8h = 480 min)
                 let dayNormal = Math.min(dayWorkedMinutes, 480);
                 let daySup = Math.max(0, dayWorkedMinutes - 480);
 
@@ -332,9 +363,11 @@
                 card.querySelector('.day-total').innerText = `${hours}h${mins < 10 ? '0' : ''}${mins}`;
             });
 
+            // Calcul du Repos Compensateur (50% des heures sup au-delà de la base)
             let totalSupMinutes = h25Minutes + h50Minutes;
             let reposMinutes = Math.round(totalSupMinutes * 0.5);
 
+            // Mise à jour de l'affichage
             document.getElementById('stat-total-h').innerText = formatMinutes(totalMinutes);
             document.getElementById('stat-normales').innerText = formatMinutes(normalMinutes);
             document.getElementById('stat-25').innerText = formatMinutes(h25Minutes);
@@ -343,12 +376,14 @@
             document.getElementById('stat-repos').innerText = formatMinutes(reposMinutes);
         }
 
+        // Convertit minutes en HHhMM
         function formatMinutes(mins) {
             const h = Math.floor(mins / 60);
             const m = mins % 60;
             return `${h}h${m < 10 ? '0' : ''}${m}`;
         }
 
+        // Initialisation automatique
         setCurrentWeekPicker();
     </script>
 </body>
