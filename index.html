@@ -64,7 +64,7 @@
 
     <div class="header">
         <h1>Feuille de Pointage BTP</h1>
-        <p>Base 8h/jour • Pause 12h-13h déduite • Multi-chantiers • Majorations</p>
+        <p>Semaine Lundi - Vendredi • Multi-chantiers • Pause 12h-13h déduite</p>
     </div>
 
     <div class="profile-selector">
@@ -74,7 +74,7 @@
 
     <div id="days-container"></div>
 
-    <button class="btn btn-secondary" style="width:100%; margin-bottom:12px;" onclick="addDay()">+ Ajouter une journée</button>
+    <button class="btn btn-secondary" style="width:100%; margin-bottom:12px;" onclick="addExtraDay()">+ Ajouter un jour de week-end (Samedi / Dimanche)</button>
 
     <div class="summary-box">
         <div class="summary-row"><span>Total heures travaillées :</span><span id="stat-total-h">0h00</span></div>
@@ -112,11 +112,27 @@
             calculateAll();
         }
 
-        function addDay() {
+        function getMonday(d) {
+            d = new Date(d);
+            const day = d.getDay();
+            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+            return new Date(d.setDate(diff));
+        }
+
+        function initWeek() {
+            const Monday = getMonday(new Date());
+            for (let i = 0; i < 5; i++) {
+                const currentDay = new Date(Monday);
+                currentDay.setDate(Monday.getDate() + i);
+                const dateStr = currentDay.toISOString().split('T')[0];
+                addDayWithDate(dateStr, true);
+            }
+        }
+
+        function addDayWithDate(dateStr, isDefaultWeek = false) {
             dayCount++;
             const container = document.getElementById('days-container');
-            const today = new Date().toISOString().split('T')[0];
-            const dayName = getDayName(today);
+            const dayName = getDayName(dateStr);
             
             const card = document.createElement('div');
             card.className = 'card';
@@ -124,12 +140,12 @@
             card.innerHTML = `
                 <div class="card-title">
                     <span class="day-name">${dayName}</span>
-                    <button class="btn-remove" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;" onclick="removeDay(${dayCount})">Supprimer le jour</button>
+                    ${!isDefaultWeek ? `<button class="btn-remove" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;" onclick="removeDay(${dayCount})">Supprimer le jour</button>` : ''}
                 </div>
                 <div class="row">
                     <div class="col">
                         <label>Date du jour</label>
-                        <input type="date" class="date-picker" value="${today}" onchange="updateDayTitle(${dayCount})">
+                        <input type="date" class="date-picker" value="${dateStr}" onchange="updateDayTitle(${dayCount})">
                     </div>
                 </div>
 
@@ -138,7 +154,7 @@
                 <button class="btn-add-chantier" onclick="addChantier(${dayCount})">+ Ajouter un chantier à ce jour</button>
 
                 <div class="break-notice">
-                    ℹ️️ Pause repas automatique déduite : 12h00 - 13h00 (non payée)
+                    ℹ️ Pause repas automatique déduite : 12h00 - 13h00 (non payée)
                 </div>
 
                 <div class="row" style="margin-top: 6px;">
@@ -147,11 +163,16 @@
             `;
             container.appendChild(card);
             
-            // On ajoute au moins 1 chantier par défaut
+            // 1 chantier par défaut
             addChantier(dayCount, "08:00", "17:00");
         }
 
-        function addChantier(dayId, defaultStart = "08:00", defaultEnd = "12:00") {
+        function addExtraDay() {
+            const today = new Date().toISOString().split('T')[0];
+            addDayWithDate(today, false);
+        }
+
+        function addChantier(dayId, defaultStart = "08:00", defaultEnd = "17:00") {
             const chantiersContainer = document.getElementById(`chantiers-day-${dayId}`);
             if (!chantiersContainer) return;
 
@@ -234,7 +255,7 @@
                     if (end > start) {
                         let worked = end - start;
 
-                        // Pause repas 12h00 - 13h00 (720 min à 780 min) déduite par tranche si chevauchement
+                        // Pause repas 12h00 - 13h00 (720 min à 780 min)
                         const breakStart = 720;
                         const breakEnd = 780;
 
@@ -284,7 +305,8 @@
             return `${h}h${m < 10 ? '0' : ''}${m}`;
         }
 
-        addDay();
+        // Initialisation automatique du Lundi au Vendredi
+        initWeek();
     </script>
 </body>
 </html>
