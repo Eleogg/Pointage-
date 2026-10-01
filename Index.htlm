@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feuille de Pointage BTP - Bâtiment & Travaux Publics</title>
+    <style>
+        :root {
+            --primary: #d97706;
+            --primary-hover: #b45309;
+            --bg-main: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --warning: #ca8a04;
+            --info: #2563eb;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: var(--text-main);
+            padding: 20px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        /* HEADER & NAVIGATION */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card-bg);
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+            border: 1px solid var(--border);
+        }
+
+        .user-badge {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .role-pill {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .role-salarie { background: #dbeafe; color: #1e40af; }
+        .role-employeur { background: #fef3c7; color: #92400e; }
+
+        /* BANNIÈRE D'ÉTAT & PERMISSION */
+        .status-banner {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+
+        .status-brouillon { background: #f3f4f6; color: #4b5563; border-left: 5px solid #9ca3af; }
+        .status-soumis { background: #e0f2fe; color: #0369a1; border-left: 5px solid #0284c7; }
+        .status-approuve { background: #dcfce7; color: #15803d; border-left: 5px solid #22c55e; }
+
+        /* FORMS & TABLES */
+        .card {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        .controls-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .day-row {
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 12px;
+            background: #fff;
+            transition: all 0.2s;
+        }
+
+        /* JOUR REPOS ET CONGÉ GRISÉ */
+        .day-row.is-repos, .day-row.is-conge {
+            background: repeating-linear-gradient(
+                45deg,
+                #f1f5f9,
+                #f1f5f9 10px,
+                #e2e8f0 10px,
+                #e2e8f0 20px
+            );
+            opacity: 0.85;
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .day-status-text {
+            color: var(--danger);
+            font-size: 1.2rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+        }
+
+        .chantier-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 40px;
+            gap: 10px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        @media(max-width: 600px) {
+            .chantier-item {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        input, select, button {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            font-size: 0.95rem;
+        }
+
+        button {
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+            border: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover { background: var(--primary-hover); }
+        button.btn-secondary { background: #64748b; }
+        button.btn-secondary:hover { background: #475569; }
+        button.btn-success { background: var(--success); }
+        button.btn-success:hover { background: #15803d; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* RÉCAPITULATIF */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            text-align: center;
+        }
+
+        .summary-box .value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-top: 5px;
+        }
+
+        /* CACHÉ À L'IMPRESSION */
+        @media print {
+            .no-print, header, .auth-container, button {
+                display: none !important;
+            }
+            body { background: white; padding: 0; }
+            .card { border: none; box-shadow: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- AUTHENTIFICATION -->
+    <div id="auth-screen" class="card" style="max-width: 400px; margin: 50px auto;">
+        <h2 style="margin-bottom: 15px; text-align:center;">Pointage BTP</h2>
+        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            <button id="tab-login" onclick="switchAuthTab('login')" style="flex:1;">Connexion</button>
+            <button id="tab-register" onclick="switchAuthTab('register')" class="btn-secondary" style="flex:1;">Inscription</button>
+        </div>
+
+        <form id="auth-form" onsubmit="handleAuth(event)">
+            <div id="register-fields" style="display:none;">
+                <input type="text" id="auth-prenom" placeholder="Prénom" style="width:100%; margin-bottom:10px;">
+                <input type="text" id="auth-nom" placeholder="Nom" style="width:100%; margin-bottom:10px;">
+                <select id="auth-role" style="width:100%; margin-bottom:10px;">
+                    <option value="salarie">Salarié</option>
+                    <option value="employeur">Employeur / Direction</option>
+                </select>
+            </div>
+            <input type="email" id="auth-email" placeholder="Adresse Email" required style="width:100%; margin-bottom:10px;">
+            <input type="password" id="auth-password" placeholder="Mot de passe" required style="width:100%; margin-bottom:15px;">
+            <button type="submit" style="width:100%;">Valider</button>
+        </form>
+    </div>
+
+    <!-- APPLICATION PRINCIPALE -->
+    <div id="app-screen" style="display:none;">
+        <header>
+            <div>
+                <h2>Feuille de Pointage</h2>
+                <small id="user-display"></small>
+            </div>
+            <button onclick="logout()" class="btn-secondary">Déconnexion</button>
+        </header>
+
+        <!-- BANNIÈRE DE VALIDATION -->
+        <div id="status-banner" class="status-banner status-brouillon">
+            <div>Statut : <span id="sheet-status">Brouillon</span></div>
+            <div id="permission-toggle"></div>
+        </div>
+
+        <div class="card no-print">
+            <div class="controls-row">
+                <div>
+                    <label><strong>Semaine du : </strong></label>
+                    <input type="week" id="week-picker" onchange="loadWeekData()">
+                </div>
+                <div>
+                    <label>
+                        <input type="checkbox" id="toggle-weekend" onchange="renderDays()"> 
+                        Option Week-end (Samedi / Dimanche)
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- LISTE DES JOURS -->
+        <div id="days-container"></div>
+
+        <!-- RÉCAPITULATIF HEURES & MAJORATIONS -->
+        <div class="card">
+            <h3>Récapitulatif Hebdomadaire (Convention BTP)</h3>
+            <div class="summary-grid">
+                <div class="summary-box">
+                    <div>Heures Normales</div>
+                    <div class="value" id="total-normal">0h00</div>
+                </div>
+                <div class="summary-box">
+                    <div>H. Sup (+25%)</div>
+                    <div class="value" id="total-25">0h00</div>
+                </div>
+                <div class="summary-box">
+                    <div>H. Sup (+50%)</div>
+                    <div class="value" id="total-50">0h00</div>
+                </div>
+                <div class="summary-box">
+                    <div>Dimanche / Férié (+100%)</div>
+                    <div class="value" id="total-100">0h00</div>
+                </div>
+                <div class="summary-box" style="border-color: var(--primary);">
+                    <div>Repos Compensateur (Récupération)</div>
+                    <div class="value" id="total-recup" style="color:var(--success);">0h00</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls-row no-print" style="margin-top:20px;">
+            <button onclick="window.print()" class="btn-secondary">🖨️ Imprimer / PDF</button>
+            <div id="action-buttons"></div>
+        </div>
+    </div>
+
+    <script>
+        // LOGIQUE STATE & STOCKAGE LOCAL
+        let currentUser = null;
+        let isRegisterMode = false;
+        let currentWeekData = {};
+
+        const DAYS_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+
+        // Initialisation
+        window.onload = function() {
+            const savedUser = localStorage.getItem('btp_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                showApp();
+            }
+            // Définir la semaine actuelle
+            document.getElementById('week-picker').value = getCurrentWeek();
+        };
+
+        function switchAuthTab(mode) {
+            isRegisterMode = (mode === 'register');
+            document.getElementById('register-fields').style.display = isRegisterMode ? 'block' : 'none';
+            document.getElementById('tab-login').className = isRegisterMode ? 'btn-secondary' : '';
+            document.getElementById('tab-register').className = isRegisterMode ? '' : 'btn-secondary';
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const role = isRegisterMode ? document.getElementById('auth-role').value : 'salarie';
+            const prenom = isRegisterMode ? document.getElementById('auth-prenom').value : email.split('@')[0];
+
+            currentUser = { email, role, prenom };
+            localStorage.setItem('btp_user', JSON.stringify(currentUser));
+            showApp();
+        }
+
+        function logout() {
+            localStorage.removeItem('btp_user');
+            location.reload();
+        }
+
+        function showApp() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('user-display').innerText = `${currentUser.prenom} (${currentUser.role.toUpperCase()})`;
+            loadWeekData();
+        }
+
+        function getCurrentWeek() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const oneJan = new Date(year, 0, 1);
+            const numberOfDays = Math.floor((date - oneJan) / (24 * 60 * 60 * 1000));
+            const week = Math.ceil((date.getDay() + 1 + numberOfDays) / 7);
+            return `${year}-W${week < 10 ? '0' + week : week}`;
+        }
+
+        function loadWeekData() {
+            const weekKey = `btp_data_${currentUser.email}_${document.getElementById('week-picker').value}`;
+            const saved = localStorage.getItem(weekKey);
+            
+            if (saved) {
+                currentWeekData = JSON.parse(saved);
+            } else {
+                currentWeekData = {
+                    status: 'brouillon',
+                    allowEmployerEdit: false,
+                    days: DAYS_NAMES.map(name => ({ name, type: 'travail', chantiers: [{ name: '', hDeb: '08:00', hFin: '16:30', pause: '00:30' }] }))
+                };
+            }
+            renderDays();
+        }
+
+        function saveWeekData() {
+            const weekKey = `btp_data_${currentUser.email}_${document.getElementById('week-picker').value}`;
+            localStorage.setItem(weekKey, JSON.stringify(currentWeekData));
+            calculateTotals();
+        }
+
+        function renderDays() {
+            const container = document.getElementById('days-container');
+            container.innerHTML = '';
+            const showWeekend = document.getElementById('toggle-weekend').checked;
+
+            currentWeekData.days.forEach((day, dIdx) => {
+                if (!showWeekend && (day.name === "Samedi" || day.name === "Dimanche")) return;
+
+                const dayDiv = document.createElement('div');
+                dayDiv.className = `day-row ${day.type === 'repos' ? 'is-repos' : ''} ${day.type === 'conge' ? 'is-conge' : ''}`;
+                
+                let content = `
+                    <div class="day-header">
+                        <span>${day.name}</span>
+                        <div>
+                            <select onchange="updateDayType(${dIdx}, this.value)">
+                                <option value="travail" ${day.type === 'travail' ? 'selected' : ''}>💼 Travail</option>
+                                <option value="repos" ${day.type === 'repos' ? 'selected' : ''}>🔴 Repos</option>
+                                <option value="conge" ${day.type === 'conge' ? 'selected' : ''}>🌴 Congé</option>
+                                <option value="ferie" ${day.type === 'ferie' ? 'selected' : ''}>🗓️ Férié</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+
+                if (day.type === 'repos' || day.type === 'conge') {
+                    content += `<div class="day-status-text">${day.type.toUpperCase()}</div>`;
+                } else {
+                    content += `<div id="chantiers-day-${dIdx}">`;
+                    day.chantiers.forEach((c, cIdx) => {
+                        content += `
+                            <div class="chantier-item">
+                                <input type="text" placeholder="Nom du chantier" value="${c.name}" onchange="updateChantier(${dIdx}, ${cIdx}, 'name', this.value)">
+                                <input type="time" value="${c.hDeb}" onchange="updateChantier(${dIdx}, ${cIdx}, 'hDeb', this.value)">
+                                <input type="time" value="${c.hFin}" onchange="updateChantier(${dIdx}, ${cIdx}, 'hFin', this.value)">
+                                <button type="button" class="btn-secondary" onclick="removeChantier(${dIdx}, ${cIdx})">✕</button>
+                            </div>
+                        `;
+                    });
+                    content += `</div><button type="button" style="margin-top:5px; font-size:0.8rem;" onclick="addChantier(${dIdx})">+ Ajouter un chantier</button>`;
+                }
+
+                dayDiv.innerHTML = content;
+                container.appendChild(dayDiv);
+            });
+
+            updateBanner();
+            calculateTotals();
+        }
+
+        function updateDayType(dIdx, type) {
+            currentWeekData.days[dIdx].type = type;
+            saveWeekData();
+            renderDays();
+        }
+
+        function addChantier(dIdx) {
+            currentWeekData.days[dIdx].chantiers.push({ name: '', hDeb: '08:00', hFin: '16:30', pause: '00:30' });
+            saveWeekData();
+            renderDays();
+        }
+
+        function removeChantier(dIdx, cIdx) {
+            currentWeekData.days[dIdx].chantiers.splice(cIdx, 1);
+            saveWeekData();
+            renderDays();
+        }
+
+        function updateChantier(dIdx, cIdx, field, val) {
+            currentWeekData.days[dIdx].chantiers[cIdx][field] = val;
+            saveWeekData();
+        }
+
+        function updateBanner() {
+            const banner = document.getElementById('status-banner');
+            const statusTxt = document.getElementById('sheet-status');
+            const permDiv = document.getElementById('permission-toggle');
+
+            statusTxt.innerText = currentWeekData.status.toUpperCase();
+            
+            if (currentUser.role === 'salarie') {
+                permDiv.innerHTML = `
+                    <label style="font-size:0.9rem; cursor:pointer;">
+                        <input type="checkbox" ${currentWeekData.allowEmployerEdit ? 'checked' : ''} onchange="toggleEmployerEdit(this.checked)">
+                        🔓 Autoriser la modification par l'employeur
+                    </label>
+                `;
+            } else {
+                permDiv.innerHTML = currentWeekData.allowEmployerEdit 
+                    ? `<span style="color:var(--success);">✅ Vous avez l'autorisation de modifier</span>`
+                    : `<span style="color:var(--danger);">🔒 Lecture seule (Accès verrouillé par le salarié)</span>`;
+            }
+        }
+
+        function toggleEmployerEdit(val) {
+            currentWeekData.allowEmployerEdit = val;
+            saveWeekData();
+            updateBanner();
+        }
+
+        function calculateTotals() {
+            let totalNormal = 0;
+            let total25 = 0;
+            let total50 = 0;
+            let total100 = 0;
+
+            currentWeekData.days.forEach(day => {
+                if (day.type !== 'travail' && day.type !== 'ferie') return;
+
+                let dayHours = 0;
+                day.chantiers.forEach(c => {
+                    if (c.hDeb && c.hFin) {
+                        const [h1, m1] = c.hDeb.split(':').map(Number);
+                        const [h2, m2] = c.hFin.split(':').map(Number);
+                        let diff = (h2 + m2/60) - (h1 + m1/60);
+                        if (diff > 0) dayHours += diff;
+                    }
+                });
+
+                if (day.name === 'Dimanche' || day.type === 'ferie') {
+                    total100 += dayHours;
+                } else {
+                    if (dayHours <= 8) {
+                        totalNormal += dayHours;
+                    } else {
+                        totalNormal += 8;
+                        let extra = dayHours - 8;
+                        // Regle: les 8 premieres heures sup de la semaine à 25%, puis 50%
+                        if (total25 < 8) {
+                            let spaceIn25 = 8 - total25;
+                            if (extra <= spaceIn25) {
+                                total25 += extra;
+                            } else {
+                                total25 += spaceIn25;
+                                total50 += (extra - spaceIn25);
+                            }
+                        } else {
+                            total50 += extra;
+                        }
+                    }
+                }
+            });
+
+            // Conversion recup : +25% -> x1.25, +50% -> x1.50, +100% -> x2.00
+            let recupHours = (total25 * 1.25) + (total50 * 1.50) + (total100 * 2.00);
+
+            document.getElementById('total-normal').innerText = formatHours(totalNormal);
+            document.getElementById('total-25').innerText = formatHours(total25);
+            document.getElementById('total-50').innerText = formatHours(total50);
+            document.getElementById('total-100').innerText = formatHours(total100);
+            document.getElementById('total-recup').innerText = formatHours(recupHours);
+        }
+
+        function formatHours(decimalHours) {
+            const hrs = Math.floor(decimalHours);
+            const mins = Math.round((decimalHours - hrs) * 60);
+            return `${hrs}h${mins < 10 ? '0' : ''}${mins}`;
+        }
+    </script>
+</body>
+</html>
