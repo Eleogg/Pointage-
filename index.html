@@ -53,26 +53,110 @@
         .btn-secondary { background: #64748b; color: white; }
         .btn-add-chantier { background: #e2e8f0; color: #334155; font-size: 0.75rem; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600; cursor: pointer; margin-bottom: 6px; }
 
-        /* IMPRESSION EN 1 SEULE FEUILLE A4 */
+        /* OPTIMISATION IMPRESSION EN 1 SEULE PAGE RECTO A4 */
         @media print {
-            @page { size: A4 portrait; margin: 8mm; }
-            body { background: white; padding: 0; max-width: 100%; font-size: 10pt; }
-            .actions, .btn-remove, .btn-secondary, .btn-add-chantier, .week-picker-container label { display: none !important; }
-            .week-picker-container { border: none; padding: 0; margin-bottom: 8px; justify-content: flex-start; }
-            .week-picker-container input { border: none; font-size: 11pt; font-weight: bold; padding: 0; }
-            .header { padding: 6px; margin-bottom: 8px; border: 1px solid #94a3b8; }
-            .header h1 { font-size: 14pt; }
-            .header p { font-size: 8pt; }
-            .card { padding: 6px; margin-bottom: 6px; border: 1px solid #94a3b8; page-break-inside: avoid; }
-            .card-title { font-size: 10pt; margin-bottom: 4px; padding-bottom: 2px; }
-            .chantier-block { padding: 4px; margin-bottom: 4px; border: 1px solid #cbd5e1; }
-            label { font-size: 7pt; margin-bottom: 1px; }
-            input[type="time"], input[type="date"], input[type="text"], textarea { padding: 2px 4px; font-size: 8pt; border: 1px solid #cbd5e1; }
-            textarea { min-height: 24px; }
-            .break-notice { display: none; }
-            .summary-box { background: white !important; color: black !important; border: 1px solid #000; padding: 8px; margin-top: 8px; page-break-inside: avoid; }
-            .summary-row { font-size: 9pt; margin-bottom: 2px; }
-            .summary-total { border-top: 1px solid #000; color: black !important; padding-top: 4px; margin-top: 4px; font-size: 10pt; }
+            @page { 
+                size: A4 portrait; 
+                margin: 4mm; 
+            }
+            html, body {
+                height: 100%;
+                background: white !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                font-size: 7.5pt !important;
+            }
+            .actions, .btn-remove, .btn-secondary, .btn-add-chantier, .break-notice, .week-picker-container label { 
+                display: none !important; 
+            }
+            .header { 
+                padding: 4px; 
+                margin-bottom: 4px; 
+                border: 1px solid #64748b; 
+                border-radius: 4px;
+            }
+            .header h1 { font-size: 11pt; margin: 0; }
+            .header p { font-size: 7pt; margin: 0; }
+
+            .week-picker-container { 
+                border: none; 
+                padding: 0; 
+                margin-bottom: 4px; 
+                justify-content: flex-start; 
+            }
+            .week-picker-container input { 
+                border: none; 
+                font-size: 9pt; 
+                font-weight: bold; 
+                padding: 0; 
+            }
+
+            /* Affichage des journées sous forme de grille 2 colonnes pour gagner de la hauteur */
+            #days-container {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 4px !important;
+            }
+
+            .card { 
+                padding: 4px !important; 
+                margin-bottom: 0 !important; 
+                border: 1px solid #64748b !important; 
+                border-radius: 4px !important;
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important;
+            }
+            .card-title { 
+                font-size: 8.5pt !important; 
+                margin-bottom: 2px !important; 
+                padding-bottom: 2px !important; 
+            }
+            .chantier-block { 
+                padding: 3px !important; 
+                margin-bottom: 3px !important; 
+                border: 1px solid #cbd5e1 !important; 
+            }
+            .chantier-title {
+                font-size: 6.5pt !important;
+                margin-bottom: 1px !important;
+            }
+            label { 
+                font-size: 6.5pt !important; 
+                margin-bottom: 1px !important; 
+            }
+            input[type="time"], input[type="date"], input[type="text"], textarea { 
+                padding: 1px 3px !important; 
+                font-size: 7.5pt !important; 
+                border: 1px solid #cbd5e1 !important; 
+                border-radius: 2px !important;
+            }
+            textarea { 
+                min-height: 18px !important; 
+                height: 20px !important;
+            }
+            .summary-box { 
+                grid-column: span 2 !important;
+                background: white !important; 
+                color: black !important; 
+                border: 1px solid #000 !important; 
+                padding: 4px 8px !important; 
+                margin-top: 4px !important; 
+                page-break-inside: avoid !important; 
+                break-inside: avoid !important;
+                border-radius: 4px !important;
+            }
+            .summary-row { 
+                font-size: 7.5pt !important; 
+                margin-bottom: 1px !important; 
+            }
+            .summary-total { 
+                border-top: 1px solid #000 !important; 
+                color: black !important; 
+                padding-top: 2px !important; 
+                margin-top: 2px !important; 
+                font-size: 8.5pt !important; 
+            }
         }
     </style>
 </head>
@@ -108,16 +192,13 @@
     <script>
         let dayCount = 0;
 
-        // Fonction pour formater une date ISO en nom de jour français
         function getDayName(dateString) {
             if (!dateString) return "Journée";
-            // On sépare la date pour éviter les problèmes de fuseau horaire
             const parts = dateString.split('-');
             const date = new Date(parts[0], parts[1] - 1, parts[2]);
             return date.toLocaleDateString('fr-FR', { weekday: 'long' });
         }
 
-        // Met à jour le titre de la carte (ex: Lundi) quand la date change
         function updateDayTitle(dayId) {
             const card = document.getElementById(`day-${dayId}`);
             if (!card) return;
@@ -127,30 +208,25 @@
             calculateAll();
         }
 
-        // Calcul correct du Lundi d'une semaine ISO
         function getMondayOfWeekISO(year, week) {
-            // Premier jour de l'année
             const simple = new Date(year, 0, 1 + (week - 1) * 7);
-            const dow = simple.getDay(); // 0=Dimanche, 1=Lundi, ..., 6=Samedi
+            const dow = simple.getDay();
             
-            // On calcule le décalage pour tomber sur le lundi
             let daysToMonday;
-            if (dow === 0) { // C'est un dimanche
+            if (dow === 0) {
                 daysToMonday = 1;
-            } else if (dow <= 4) { // Lundi à Jeudi
+            } else if (dow <= 4) {
                 daysToMonday = 1 - dow;
-            } else { // Vendredi ou Samedi
+            } else {
                 daysToMonday = 8 - dow;
             }
             
-            // Applique le décalage
             const ISOWeekStart = new Date(simple);
             ISOWeekStart.setDate(simple.getDate() + daysToMonday);
             
             return ISOWeekStart;
         }
 
-        // Numéro de la semaine pour une date donnée
         function getWeekNumberISO(d) {
             d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
             d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
@@ -158,7 +234,6 @@
             return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
-        // Initialise le sélecteur de semaine sur la semaine en cours
         function setCurrentWeekPicker() {
             const today = new Date();
             const year = today.getFullYear();
@@ -168,7 +243,6 @@
             loadSelectedWeek();
         }
 
-        // Charge les 5 jours (Lundi-Vendredi) de la semaine sélectionnée
         function loadSelectedWeek() {
             const weekVal = document.getElementById('week-select').value;
             if (!weekVal) return;
@@ -179,12 +253,10 @@
             document.getElementById('days-container').innerHTML = '';
             dayCount = 0;
 
-            // 5 jours : Lundi, Mardi, Mercredi, Jeudi, Vendredi
             for (let i = 0; i < 5; i++) {
                 const currentDay = new Date(monday);
                 currentDay.setDate(monday.getDate() + i);
                 
-                // Formatage manuel pour input date (yyyy-mm-dd)
                 const yyyy = currentDay.getFullYear();
                 const mm = String(currentDay.getMonth() + 1).padStart(2, '0');
                 const dd = String(currentDay.getDate()).padStart(2, '0');
@@ -194,7 +266,6 @@
             }
         }
 
-        // Ajoute un jour (carte) avec une date préremplie
         function addDayWithDate(dateStr, isDefaultWeek = false) {
             dayCount++;
             const container = document.getElementById('days-container');
@@ -232,7 +303,6 @@
             addChantier(dayCount, "08:00", "17:00");
         }
 
-        // Ajoute un jour de week-end (samedi/dimanche)
         function addExtraDay() {
             const today = new Date();
             const yyyy = today.getFullYear();
@@ -242,7 +312,6 @@
             addDayWithDate(dateStr, false);
         }
 
-        // Ajoute une ligne de chantier dans un jour
         function addChantier(dayId, defaultStart = "08:00", defaultEnd = "17:00") {
             const chantiersContainer = document.getElementById(`chantiers-day-${dayId}`);
             if (!chantiersContainer) return;
@@ -288,28 +357,24 @@
             calculateAll();
         }
 
-        // Supprime une ligne de chantier
         function removeChantier(chantierId) {
             const block = document.getElementById(`chantier-${chantierId}`);
             if (block) block.remove();
             calculateAll();
         }
 
-        // Supprime une carte de jour
         function removeDay(id) {
             const card = document.getElementById(`day-${id}`);
             if (card) card.remove();
             calculateAll();
         }
 
-        // Convertit HH:MM en minutes
         function parseTime(timeStr) {
             if (!timeStr) return 0;
             const [h, m] = timeStr.split(':').map(Number);
             return h * 60 + m;
         }
 
-        // Recalcule tous les totaux
         function calculateAll() {
             let totalMinutes = 0;
             let normalMinutes = 0;
@@ -330,7 +395,6 @@
                     if (end > start) {
                         let worked = end - start;
 
-                        // Pause repas 12h00 - 13h00 (720 min à 780 min)
                         const breakStart = 720; // 12h00
                         const breakEnd = 780;   // 13h00
 
@@ -346,7 +410,6 @@
                     }
                 });
 
-                // Ventilation par journée (Base 8h = 480 min)
                 let dayNormal = Math.min(dayWorkedMinutes, 480);
                 let daySup = Math.max(0, dayWorkedMinutes - 480);
 
@@ -363,11 +426,9 @@
                 card.querySelector('.day-total').innerText = `${hours}h${mins < 10 ? '0' : ''}${mins}`;
             });
 
-            // Calcul du Repos Compensateur (50% des heures sup au-delà de la base)
             let totalSupMinutes = h25Minutes + h50Minutes;
             let reposMinutes = Math.round(totalSupMinutes * 0.5);
 
-            // Mise à jour de l'affichage
             document.getElementById('stat-total-h').innerText = formatMinutes(totalMinutes);
             document.getElementById('stat-normales').innerText = formatMinutes(normalMinutes);
             document.getElementById('stat-25').innerText = formatMinutes(h25Minutes);
@@ -376,14 +437,12 @@
             document.getElementById('stat-repos').innerText = formatMinutes(reposMinutes);
         }
 
-        // Convertit minutes en HHhMM
         function formatMinutes(mins) {
             const h = Math.floor(mins / 60);
             const m = mins % 60;
             return `${h}h${m < 10 ? '0' : ''}${m}`;
         }
 
-        // Initialisation automatique
         setCurrentWeekPicker();
     </script>
 </body>
