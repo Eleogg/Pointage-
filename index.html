@@ -80,7 +80,7 @@
 
     <div class="header">
         <h1>Feuille de Pointage BTP</h1>
-        <p>Déduction pause 12h-13h • Multi-chantiers • Base 8h/jour</p>
+        <p>Du Lundi au Vendredi • Déduction pause 12h-13h • Multi-chantiers</p>
     </div>
 
     <div class="week-picker-container">
@@ -110,7 +110,8 @@
 
         function getDayName(dateString) {
             if (!dateString) return "Journée";
-            const date = new Date(dateString + 'T00:00:00');
+            const parts = dateString.split('-');
+            const date = new Date(parts[0], parts[1] - 1, parts[2]);
             return date.toLocaleDateString('fr-FR', { weekday: 'long' });
         }
 
@@ -123,32 +124,12 @@
             calculateAll();
         }
 
-        function getMondayOfWeek(year, week) {
-            const simple = new Date(year, 0, 1 + (week - 1) * 7);
-            const dow = simple.getDay();
-            const ISOweekStart = simple;
-            if (dow <= 4)
-                ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
-            else
-                ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
-            return ISOweekStart;
-        }
-
-        function setCurrentWeekPicker() {
-            const today = new Date();
-            const monday = getMondayOfCurrentDate(today);
-            const year = monday.getFullYear();
-            const week = getWeekNumber(monday);
-            const formattedWeek = `${year}-W${week < 10 ? '0' + week : week}`;
-            document.getElementById('week-select').value = formattedWeek;
-            loadSelectedWeek();
-        }
-
-        function getMondayOfCurrentDate(d) {
-            d = new Date(d);
-            const day = d.getDay();
-            const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-            return new Date(d.setDate(diff));
+        function getMondayFromWeek(year, week) {
+            const simple = new Date(year, 0, 4);
+            const dayOfWeek = simple.getDay() || 7;
+            simple.setDate(simple.getDate() - dayOfWeek + 1);
+            simple.setDate(simple.getDate() + (week - 1) * 7);
+            return simple;
         }
 
         function getWeekNumber(d) {
@@ -158,20 +139,35 @@
             return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
         }
 
+        function setCurrentWeekPicker() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const week = getWeekNumber(today);
+            const formattedWeek = `${year}-W${week < 10 ? '0' + week : week}`;
+            document.getElementById('week-select').value = formattedWeek;
+            loadSelectedWeek();
+        }
+
         function loadSelectedWeek() {
             const weekVal = document.getElementById('week-select').value;
             if (!weekVal) return;
 
             const [year, week] = weekVal.split('-W').map(Number);
-            const monday = getMondayOfWeek(year, week);
+            const monday = getMondayFromWeek(year, week);
 
             document.getElementById('days-container').innerHTML = '';
             dayCount = 0;
 
+            // 5 jours : Lundi, Mardi, Mercredi, Jeudi, Vendredi
             for (let i = 0; i < 5; i++) {
                 const currentDay = new Date(monday);
                 currentDay.setDate(monday.getDate() + i);
-                const dateStr = currentDay.toISOString().split('T')[0];
+                
+                const yyyy = currentDay.getFullYear();
+                const mm = String(currentDay.getMonth() + 1).padStart(2, '0');
+                const dd = String(currentDay.getDate()).padStart(2, '0');
+                const dateStr = `${yyyy}-${mm}-${dd}`;
+                
                 addDayWithDate(dateStr, true);
             }
         }
@@ -214,8 +210,12 @@
         }
 
         function addExtraDay() {
-            const today = new Date().toISOString().split('T')[0];
-            addDayWithDate(today, false);
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}-${mm}-${dd}`;
+            addDayWithDate(dateStr, false);
         }
 
         function addChantier(dayId, defaultStart = "08:00", defaultEnd = "17:00") {
@@ -235,7 +235,7 @@
                 <div class="row">
                     <div class="col">
                         <label>Nom du Chantier / Code</label>
-                        <input type="text" placeholder="Ex: Résidence Les Pins, Ref 402..." />
+                        <input type="text" placeholder="Ex: Résidence Les Pins..." />
                     </div>
                     <div class="col">
                         <label>Lieu / Ville</label>
@@ -301,8 +301,8 @@
                     if (end > start) {
                         let worked = end - start;
 
-                        const breakStart = 720;
-                        const breakEnd = 780;
+                        const breakStart = 720; // 12h00
+                        const breakEnd = 780;   // 13h00
 
                         const overlapStart = Math.max(start, breakStart);
                         const overlapEnd = Math.min(end, breakEnd);
