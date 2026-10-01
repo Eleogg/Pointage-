@@ -14,7 +14,7 @@
             --text-muted: #64748b;
             --border: #e2e8f0;
             --danger: #dc2626;
-            --success: #16a34a;
+            --sub-card: #f1f5f9;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
@@ -28,29 +28,33 @@
         .btn-profile { flex: 1; padding: 10px; border: 2px solid var(--border); background: var(--card-bg); border-radius: 8px; font-weight: 600; cursor: pointer; }
         .btn-profile.active { border-color: var(--primary); background: #fffbe0; color: var(--primary-hover); }
 
-        .card { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
-        .card-title { font-weight: 700; font-size: 1rem; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 16px; border: 1px solid var(--border); }
+        .card-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; text-transform: capitalize; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+
+        .chantier-block { background: var(--sub-card); border-radius: 8px; padding: 10px; margin-bottom: 10px; border: 1px dashed #cbd5e1; position: relative; }
+        .chantier-title { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
 
         .row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
         .col { flex: 1; }
         
         label { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
-        input[type="time"], input[type="date"], textarea { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; }
+        input[type="time"], input[type="date"], input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: #fff; }
         textarea { resize: vertical; min-height: 40px; }
 
         .break-notice { font-size: 0.75rem; color: var(--primary-hover); background: #fffbe0; padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; }
 
         .summary-box { background: #1e293b; color: white; border-radius: 12px; padding: 16px; margin-top: 16px; }
         .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; }
-        .summary-total { font-size: 1.1rem; font-weight: 700; border-top: 1px solid #334155; pt: 8px; margin-top: 8px; color: #f59e0b; }
+        .summary-total { font-size: 1.1rem; font-weight: 700; border-top: 1px solid #334155; padding-top: 8px; margin-top: 8px; color: #f59e0b; }
 
         .actions { display: flex; gap: 8px; margin-top: 16px; }
         .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: #64748b; color: white; }
+        .btn-add-chantier { background: #e2e8f0; color: #334155; font-size: 0.8rem; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
 
         @media print {
-            .profile-selector, .actions, .btn-remove { display: none !important; }
+            .profile-selector, .actions, .btn-remove, .btn-secondary, .btn-add-chantier { display: none !important; }
             body { background: white; padding: 0; }
             .card, .header, .summary-box { border: 1px solid #ccc; box-shadow: none; }
         }
@@ -60,7 +64,7 @@
 
     <div class="header">
         <h1>Feuille de Pointage BTP</h1>
-        <p>Base 8h/jour • Pause 12h-13h déduite • Majorations & Repos</p>
+        <p>Base 8h/jour • Pause 12h-13h déduite • Multi-chantiers • Majorations</p>
     </div>
 
     <div class="profile-selector">
@@ -86,58 +90,115 @@
     </div>
 
     <script>
-        let currentProfile = 'salarie';
         let dayCount = 0;
 
         function setProfile(profile) {
-            currentProfile = profile;
             document.getElementById('btn-salarie').classList.toggle('active', profile === 'salarie');
             document.getElementById('btn-employeur').classList.toggle('active', profile === 'employeur');
+        }
+
+        function getDayName(dateString) {
+            if (!dateString) return "Journée";
+            const date = new Date(dateString + 'T00:00:00');
+            return date.toLocaleDateString('fr-FR', { weekday: 'long' });
+        }
+
+        function updateDayTitle(dayId) {
+            const card = document.getElementById(`day-${dayId}`);
+            if (!card) return;
+            const dateVal = card.querySelector('.date-picker').value;
+            const dayName = getDayName(dateVal);
+            card.querySelector('.day-name').innerText = dayName;
+            calculateAll();
         }
 
         function addDay() {
             dayCount++;
             const container = document.getElementById('days-container');
             const today = new Date().toISOString().split('T')[0];
+            const dayName = getDayName(today);
             
             const card = document.createElement('div');
             card.className = 'card';
             card.id = `day-${dayCount}`;
             card.innerHTML = `
                 <div class="card-title">
-                    <span>Journée ${dayCount}</span>
-                    <button class="btn-remove" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;" onclick="removeDay(${dayCount})">Supprimer</button>
+                    <span class="day-name">${dayName}</span>
+                    <button class="btn-remove" style="background:none; border:none; color:var(--danger); cursor:pointer; font-weight:bold;" onclick="removeDay(${dayCount})">Supprimer le jour</button>
                 </div>
                 <div class="row">
                     <div class="col">
-                        <label>Date</label>
-                        <input type="date" value="${today}" onchange="calculateAll()">
+                        <label>Date du jour</label>
+                        <input type="date" class="date-picker" value="${today}" onchange="updateDayTitle(${dayCount})">
+                    </div>
+                </div>
+
+                <div class="chantiers-list" id="chantiers-day-${dayCount}"></div>
+
+                <button class="btn-add-chantier" onclick="addChantier(${dayCount})">+ Ajouter un chantier à ce jour</button>
+
+                <div class="break-notice">
+                    ℹ️️ Pause repas automatique déduite : 12h00 - 13h00 (non payée)
+                </div>
+
+                <div class="row" style="margin-top: 6px;">
+                    <span style="font-size:0.85rem; font-weight:600;">Total heures payées du jour : <strong class="day-total" style="color:var(--primary)">0h00</strong></span>
+                </div>
+            `;
+            container.appendChild(card);
+            
+            // On ajoute au moins 1 chantier par défaut
+            addChantier(dayCount, "08:00", "17:00");
+        }
+
+        function addChantier(dayId, defaultStart = "08:00", defaultEnd = "12:00") {
+            const chantiersContainer = document.getElementById(`chantiers-day-${dayId}`);
+            if (!chantiersContainer) return;
+
+            const chantierId = Date.now() + Math.random().toString(36).substr(2, 4);
+
+            const chantierBlock = document.createElement('div');
+            chantierBlock.className = 'chantier-block';
+            chantierBlock.id = `chantier-${chantierId}`;
+            chantierBlock.innerHTML = `
+                <div class="chantier-title">
+                    <span>Chantier / Intervention</span>
+                    <button class="btn-remove" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.75rem;" onclick="removeChantier('${chantierId}')">Supprimer ce chantier</button>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <label>Nom du Chantier / Code</label>
+                        <input type="text" placeholder="Ex: Résidence Les Pins, Ref 402..." />
+                    </div>
+                    <div class="col">
+                        <label>Lieu / Ville</label>
+                        <input type="text" placeholder="Ex: Lyon, Paris..." />
                     </div>
                 </div>
                 <div class="row">
                     <div class="col">
                         <label>Heure d'arrivée</label>
-                        <input type="time" class="time-in" value="08:00" onchange="calculateAll()">
+                        <input type="time" class="time-in" value="${defaultStart}" onchange="calculateAll()">
                     </div>
                     <div class="col">
                         <label>Heure de départ</label>
-                        <input type="time" class="time-out" value="17:00" onchange="calculateAll()">
+                        <input type="time" class="time-out" value="${defaultEnd}" onchange="calculateAll()">
                     </div>
-                </div>
-                <div class="break-notice">
-                    ℹ️ Pause repas automatique déduite : 12h00 - 13h00 (non payée)
                 </div>
                 <div class="row">
                     <div class="col">
-                        <label>Description des travaux / Chantier</label>
-                        <textarea placeholder="Ex: Pose de plaques, maçonnerie, chantier Lyon..."></textarea>
+                        <label>Description des travaux</label>
+                        <textarea placeholder="Ex: Pose de plaques, maçonnerie..."></textarea>
                     </div>
                 </div>
-                <div class="row" style="margin-top: 4px;">
-                    <span style="font-size:0.85rem; font-weight:600;">Heures payées : <strong class="day-total" style="color:var(--primary)">8h00</strong></span>
-                </div>
             `;
-            container.appendChild(card);
+            chantiersContainer.appendChild(chantierBlock);
+            calculateAll();
+        }
+
+        function removeChantier(chantierId) {
+            const block = document.getElementById(`chantier-${chantierId}`);
+            if (block) block.remove();
             calculateAll();
         }
 
@@ -163,49 +224,52 @@
             const cards = document.querySelectorAll('.card');
 
             cards.forEach(card => {
-                const start = parseTime(card.querySelector('.time-in').value);
-                const end = parseTime(card.querySelector('.time-out').value);
+                let dayWorkedMinutes = 0;
+                const chantiers = card.querySelectorAll('.chantier-block');
 
-                if (end > start) {
-                    let worked = end - start;
+                chantiers.forEach(chantier => {
+                    const start = parseTime(chantier.querySelector('.time-in').value);
+                    const end = parseTime(chantier.querySelector('.time-out').value);
 
-                    // Exclusion automatique de la pause 12h00 - 13h00 (720 min à 780 min)
-                    const breakStart = 12 * 60; // 720
-                    const breakEnd = 13 * 60;   // 780
+                    if (end > start) {
+                        let worked = end - start;
 
-                    const overlapStart = Math.max(start, breakStart);
-                    const overlapEnd = Math.min(end, breakEnd);
+                        // Pause repas 12h00 - 13h00 (720 min à 780 min) déduite par tranche si chevauchement
+                        const breakStart = 720;
+                        const breakEnd = 780;
 
-                    if (overlapEnd > overlapStart) {
-                        worked -= (overlapEnd - overlapStart);
+                        const overlapStart = Math.max(start, breakStart);
+                        const overlapEnd = Math.min(end, breakEnd);
+
+                        if (overlapEnd > overlapStart) {
+                            worked -= (overlapEnd - overlapStart);
+                        }
+
+                        worked = Math.max(0, worked);
+                        dayWorkedMinutes += worked;
                     }
+                });
 
-                    worked = Math.max(0, worked);
+                // Ventilation par journée (Base 8h = 480 min)
+                let dayNormal = Math.min(dayWorkedMinutes, 480);
+                let daySup = Math.max(0, dayWorkedMinutes - 480);
 
-                    // Calcul journée (base 8h = 480 min)
-                    let dayNormal = Math.min(worked, 480);
-                    let daySup = Math.max(0, worked - 480);
+                let day25 = Math.min(daySup, 120);
+                let day50 = Math.max(0, daySup - 120);
 
-                    // Ventilation heures sup journalières
-                    let day25 = Math.min(daySup, 120); // 2 premières heures sup (+25%)
-                    let day50 = Math.max(0, daySup - 120); // au-delà (+50%)
+                totalMinutes += dayWorkedMinutes;
+                normalMinutes += dayNormal;
+                h25Minutes += day25;
+                h50Minutes += day50;
 
-                    totalMinutes += worked;
-                    normalMinutes += dayNormal;
-                    h25Minutes += day25;
-                    h50Minutes += day50;
-
-                    const hours = Math.floor(worked / 60);
-                    const mins = worked % 60;
-                    card.querySelector('.day-total').innerText = `${hours}h${mins < 10 ? '0' : ''}${mins}`;
-                }
+                const hours = Math.floor(dayWorkedMinutes / 60);
+                const mins = dayWorkedMinutes % 60;
+                card.querySelector('.day-total').innerText = `${hours}h${mins < 10 ? '0' : ''}${mins}`;
             });
 
-            // Calcul du Repos Compensateur (50% des heures sup au-delà de la base)
             let totalSupMinutes = h25Minutes + h50Minutes;
             let reposMinutes = Math.round(totalSupMinutes * 0.5);
 
-            // Mise à jour de l'affichage
             document.getElementById('stat-total-h').innerText = formatMinutes(totalMinutes);
             document.getElementById('stat-normales').innerText = formatMinutes(normalMinutes);
             document.getElementById('stat-25').innerText = formatMinutes(h25Minutes);
@@ -220,7 +284,6 @@
             return `${h}h${m < 10 ? '0' : ''}${m}`;
         }
 
-        // Première journée par défaut
         addDay();
     </script>
 </body>
