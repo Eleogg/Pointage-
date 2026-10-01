@@ -12,51 +12,67 @@
             --card-bg: #ffffff;
             --text-main: #1e293b;
             --text-muted: #64748b;
-            --border: #e2e8f0;
-            --danger: #dc2626;
+            --border: #cbd5e1;
             --sub-card: #f1f5f9;
+            --danger: #dc2626;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); padding: 12px; max-width: 800px; margin: 0 auto; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding: 12px; max-width: 850px; margin: 0 auto; }
         
-        .header { text-align: center; margin-bottom: 16px; background: var(--card-bg); padding: 16px; border-radius: 12px; border: 1px solid var(--border); }
-        .header h1 { font-size: 1.3rem; color: var(--primary); margin-bottom: 4px; }
-        .header p { font-size: 0.85rem; color: var(--text-muted); }
+        .header { text-align: center; margin-bottom: 12px; background: var(--card-bg); padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+        .header h1 { font-size: 1.2rem; color: var(--primary); margin-bottom: 2px; }
+        .header p { font-size: 0.8rem; color: var(--text-muted); }
 
-        .profile-selector { display: flex; gap: 8px; margin-bottom: 16px; }
-        .btn-profile { flex: 1; padding: 10px; border: 2px solid var(--border); background: var(--card-bg); border-radius: 8px; font-weight: 600; cursor: pointer; }
-        .btn-profile.active { border-color: var(--primary); background: #fffbe0; color: var(--primary-hover); }
+        .week-picker-container { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--card-bg); padding: 10px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 12px; }
+        .week-picker-container label { font-weight: 700; font-size: 0.85rem; color: var(--text-main); margin-bottom: 0; }
+        .week-picker-container input[type="week"] { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; font-weight: 600; font-size: 0.9rem; }
 
-        .card { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 16px; border: 1px solid var(--border); }
-        .card-title { font-weight: 700; font-size: 1.05rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; text-transform: capitalize; border-bottom: 2px solid var(--border); padding-bottom: 6px; }
+        .card { background: var(--card-bg); border-radius: 8px; padding: 10px; margin-bottom: 10px; border: 1px solid var(--border); }
+        .card-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; text-transform: capitalize; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
 
-        .chantier-block { background: var(--sub-card); border-radius: 8px; padding: 10px; margin-bottom: 10px; border: 1px dashed #cbd5e1; position: relative; }
-        .chantier-title { font-size: 0.8rem; font-weight: 700; color: var(--text-muted); margin-bottom: 6px; display: flex; justify-content: space-between; }
+        .chantier-block { background: var(--sub-card); border-radius: 6px; padding: 8px; margin-bottom: 6px; border: 1px dashed #cbd5e1; }
+        .chantier-title { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; display: flex; justify-content: space-between; }
 
-        .row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+        .row { display: flex; gap: 6px; margin-bottom: 6px; align-items: center; }
         .col { flex: 1; }
         
-        label { display: block; font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; }
-        input[type="time"], input[type="date"], input[type="text"], textarea { width: 100%; padding: 8px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.9rem; background: #fff; }
-        textarea { resize: vertical; min-height: 40px; }
+        label { display: block; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; margin-bottom: 2px; }
+        input[type="time"], input[type="date"], input[type="text"], textarea { width: 100%; padding: 6px; border: 1px solid var(--border); border-radius: 4px; font-size: 0.85rem; background: #fff; }
+        textarea { resize: vertical; min-height: 35px; }
 
-        .break-notice { font-size: 0.75rem; color: var(--primary-hover); background: #fffbe0; padding: 6px 10px; border-radius: 6px; margin-bottom: 8px; }
+        .break-notice { font-size: 0.7rem; color: var(--primary-hover); background: #fffbe0; padding: 4px 8px; border-radius: 4px; margin-bottom: 6px; }
 
-        .summary-box { background: #1e293b; color: white; border-radius: 12px; padding: 16px; margin-top: 16px; }
-        .summary-row { display: flex; justify-content: space-between; margin-bottom: 6px; font-size: 0.9rem; }
-        .summary-total { font-size: 1.1rem; font-weight: 700; border-top: 1px solid #334155; padding-top: 8px; margin-top: 8px; color: #f59e0b; }
+        .summary-box { background: #1e293b; color: white; border-radius: 8px; padding: 12px; margin-top: 12px; }
+        .summary-row { display: flex; justify-content: space-between; margin-bottom: 4px; font-size: 0.85rem; }
+        .summary-total { font-size: 1rem; font-weight: 700; border-top: 1px solid #334155; padding-top: 6px; margin-top: 6px; color: #f59e0b; }
 
-        .actions { display: flex; gap: 8px; margin-top: 16px; }
-        .btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; text-align: center; }
+        .actions { display: flex; gap: 8px; margin-top: 12px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 6px; font-weight: 600; cursor: pointer; text-align: center; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-secondary { background: #64748b; color: white; }
-        .btn-add-chantier { background: #e2e8f0; color: #334155; font-size: 0.8rem; padding: 6px 10px; border: 1px solid #cbd5e1; border-radius: 6px; font-weight: 600; cursor: pointer; margin-bottom: 8px; }
+        .btn-add-chantier { background: #e2e8f0; color: #334155; font-size: 0.75rem; padding: 4px 8px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: 600; cursor: pointer; margin-bottom: 6px; }
 
+        /* IMPRESSION EN 1 SEULE FEUILLE A4 */
         @media print {
-            .profile-selector, .actions, .btn-remove, .btn-secondary, .btn-add-chantier { display: none !important; }
-            body { background: white; padding: 0; }
-            .card, .header, .summary-box { border: 1px solid #ccc; box-shadow: none; }
+            @page { size: A4 portrait; margin: 8mm; }
+            body { background: white; padding: 0; max-width: 100%; font-size: 10pt; }
+            .actions, .btn-remove, .btn-secondary, .btn-add-chantier, .week-picker-container label { display: none !important; }
+            .week-picker-container { border: none; padding: 0; margin-bottom: 8px; justify-content: flex-start; }
+            .week-picker-container input { border: none; font-size: 11pt; font-weight: bold; padding: 0; }
+            .header { padding: 6px; margin-bottom: 8px; border: 1px solid #94a3b8; }
+            .header h1 { font-size: 14pt; }
+            .header p { font-size: 8pt; }
+            .card { padding: 6px; margin-bottom: 6px; border: 1px solid #94a3b8; page-break-inside: avoid; }
+            .card-title { font-size: 10pt; margin-bottom: 4px; padding-bottom: 2px; }
+            .chantier-block { padding: 4px; margin-bottom: 4px; border: 1px solid #cbd5e1; }
+            label { font-size: 7pt; margin-bottom: 1px; }
+            input[type="time"], input[type="date"], input[type="text"], textarea { padding: 2px 4px; font-size: 8pt; border: 1px solid #cbd5e1; }
+            textarea { min-height: 24px; }
+            .break-notice { display: none; }
+            .summary-box { background: white !important; color: black !important; border: 1px solid #000; padding: 8px; margin-top: 8px; page-break-inside: avoid; }
+            .summary-row { font-size: 9pt; margin-bottom: 2px; }
+            .summary-total { border-top: 1px solid #000; color: black !important; padding-top: 4px; margin-top: 4px; font-size: 10pt; }
         }
     </style>
 </head>
@@ -64,17 +80,17 @@
 
     <div class="header">
         <h1>Feuille de Pointage BTP</h1>
-        <p>Semaine Lundi - Vendredi • Multi-chantiers • Pause 12h-13h déduite</p>
+        <p>Déduction pause 12h-13h • Multi-chantiers • Base 8h/jour</p>
     </div>
 
-    <div class="profile-selector">
-        <button class="btn-profile active" id="btn-salarie" onclick="setProfile('salarie')">Profil Salarié</button>
-        <button class="btn-profile" id="btn-employeur" onclick="setProfile('employeur')">Profil Employeur</button>
+    <div class="week-picker-container">
+        <label for="week-select">Choisir la semaine :</label>
+        <input type="week" id="week-select" onchange="loadSelectedWeek()">
     </div>
 
     <div id="days-container"></div>
 
-    <button class="btn btn-secondary" style="width:100%; margin-bottom:12px;" onclick="addExtraDay()">+ Ajouter un jour de week-end (Samedi / Dimanche)</button>
+    <button class="btn btn-secondary" style="width:100%; margin-bottom:8px;" onclick="addExtraDay()">+ Ajouter un jour (Samedi / Dimanche)</button>
 
     <div class="summary-box">
         <div class="summary-row"><span>Total heures travaillées :</span><span id="stat-total-h">0h00</span></div>
@@ -92,11 +108,6 @@
     <script>
         let dayCount = 0;
 
-        function setProfile(profile) {
-            document.getElementById('btn-salarie').classList.toggle('active', profile === 'salarie');
-            document.getElementById('btn-employeur').classList.toggle('active', profile === 'employeur');
-        }
-
         function getDayName(dateString) {
             if (!dateString) return "Journée";
             const date = new Date(dateString + 'T00:00:00');
@@ -112,18 +123,54 @@
             calculateAll();
         }
 
-        function getMonday(d) {
+        function getMondayOfWeek(year, week) {
+            const simple = new Date(year, 0, 1 + (week - 1) * 7);
+            const dow = simple.getDay();
+            const ISOweekStart = simple;
+            if (dow <= 4)
+                ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+            else
+                ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+            return ISOweekStart;
+        }
+
+        function setCurrentWeekPicker() {
+            const today = new Date();
+            const monday = getMondayOfCurrentDate(today);
+            const year = monday.getFullYear();
+            const week = getWeekNumber(monday);
+            const formattedWeek = `${year}-W${week < 10 ? '0' + week : week}`;
+            document.getElementById('week-select').value = formattedWeek;
+            loadSelectedWeek();
+        }
+
+        function getMondayOfCurrentDate(d) {
             d = new Date(d);
             const day = d.getDay();
             const diff = d.getDate() - day + (day === 0 ? -6 : 1);
             return new Date(d.setDate(diff));
         }
 
-        function initWeek() {
-            const Monday = getMonday(new Date());
+        function getWeekNumber(d) {
+            d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+            d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay() || 7));
+            const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function loadSelectedWeek() {
+            const weekVal = document.getElementById('week-select').value;
+            if (!weekVal) return;
+
+            const [year, week] = weekVal.split('-W').map(Number);
+            const monday = getMondayOfWeek(year, week);
+
+            document.getElementById('days-container').innerHTML = '';
+            dayCount = 0;
+
             for (let i = 0; i < 5; i++) {
-                const currentDay = new Date(Monday);
-                currentDay.setDate(Monday.getDate() + i);
+                const currentDay = new Date(monday);
+                currentDay.setDate(monday.getDate() + i);
                 const dateStr = currentDay.toISOString().split('T')[0];
                 addDayWithDate(dateStr, true);
             }
@@ -157,13 +204,12 @@
                     ℹ️ Pause repas automatique déduite : 12h00 - 13h00 (non payée)
                 </div>
 
-                <div class="row" style="margin-top: 6px;">
-                    <span style="font-size:0.85rem; font-weight:600;">Total heures payées du jour : <strong class="day-total" style="color:var(--primary)">0h00</strong></span>
+                <div class="row" style="margin-top: 4px;">
+                    <span style="font-size:0.8rem; font-weight:600;">Total heures payées du jour : <strong class="day-total" style="color:var(--primary)">0h00</strong></span>
                 </div>
             `;
             container.appendChild(card);
             
-            // 1 chantier par défaut
             addChantier(dayCount, "08:00", "17:00");
         }
 
@@ -184,7 +230,7 @@
             chantierBlock.innerHTML = `
                 <div class="chantier-title">
                     <span>Chantier / Intervention</span>
-                    <button class="btn-remove" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.75rem;" onclick="removeChantier('${chantierId}')">Supprimer ce chantier</button>
+                    <button class="btn-remove" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:0.7rem;" onclick="removeChantier('${chantierId}')">Supprimer</button>
                 </div>
                 <div class="row">
                     <div class="col">
@@ -255,7 +301,6 @@
                     if (end > start) {
                         let worked = end - start;
 
-                        // Pause repas 12h00 - 13h00 (720 min à 780 min)
                         const breakStart = 720;
                         const breakEnd = 780;
 
@@ -271,7 +316,6 @@
                     }
                 });
 
-                // Ventilation par journée (Base 8h = 480 min)
                 let dayNormal = Math.min(dayWorkedMinutes, 480);
                 let daySup = Math.max(0, dayWorkedMinutes - 480);
 
@@ -305,8 +349,7 @@
             return `${h}h${m < 10 ? '0' : ''}${m}`;
         }
 
-        // Initialisation automatique du Lundi au Vendredi
-        initWeek();
+        setCurrentWeekPicker();
     </script>
 </body>
 </html>
